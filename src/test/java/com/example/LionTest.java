@@ -5,31 +5,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LionTest {
-    @Spy
-    Lion lion;
-
     @Mock
     Feline feline;
-
-    {
-        try {
-            lion = new Lion(new Feline(),"Самец");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Test
     public void getKittens() throws Exception {
         Lion lion = new Lion(feline,"Самец");
+        Mockito.when(feline.getKittens()).thenReturn(0);
         Assert.assertEquals(0,lion.getKittens());
         Mockito.verify((Family)feline,Mockito.times(1)).getKittens();
     }
@@ -37,8 +26,13 @@ public class LionTest {
     @Test
     public void getFood() throws Exception {
         Lion lion = new Lion(feline,"Самка");
-        Assert.assertEquals(new ArrayList<String>(),lion.getFood());
+        Mockito.when(feline.getFood("Хищник")).thenReturn(List.of("Животные", "Птицы", "Рыба"));
+        Assert.assertEquals(List.of("Животные", "Птицы", "Рыба"),lion.getFood());
         Mockito.verify(feline,Mockito.times(1)).getFood("Хищник");
     }
-
+    @Test
+    public void LionTestNewInstanceReturnThrow() throws Exception {
+        Throwable exception = assertThrows(Exception.class, () -> new Lion(feline,"Самса"));
+        Assert.assertEquals("Используйте допустимые значения пола животного - самей или самка", exception.getMessage());
+    };
 }
